@@ -1,6 +1,6 @@
 # Tree API
 
-Minimal NestJS service that stores tree nodes in SQLite via Prisma and exposes them under `/api/tree`.
+Minimal NestJS service that stores tree nodes in SQLite via Prisma and exposes them under `/api/tree`. The purpose of this architecture under tree directory is that controllers handle transport, services handle domain logic, repositories handle the DB, DTOs(data transfer objects: no biz logic) that handle input validation/typing, and the module glues them together.
 
 ## Setup
 - `npm install`
@@ -14,6 +14,13 @@ Minimal NestJS service that stores tree nodes in SQLite via Prisma and exposes t
 ## Testing
 - `npm test` for unit tests.
 - `npm run test:e2e` for Supertest happy-path coverage.
+- to create a node and assign a parent node to it run:
+
+`curl -X POST http://localhost:3000/api/tree \
+  -H "Content-Type: application/json" \
+  -d '{"label":"Child node","parentId": 1}'
+
+  and replace parentId with the one we can choose from localhost:3000
 
 ## Design Decisions & Trade-offs
 - **SQLite + Prisma**: satisfies persistence requirement with minimal setup; good for local dev, but would switch to Postgres/MySQL for multi-user prod deployments.

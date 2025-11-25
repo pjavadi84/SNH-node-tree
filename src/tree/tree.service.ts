@@ -1,3 +1,5 @@
+// Buisiness Logic: assemble the tree from flat records, validate parents on create and calls the repository. 
+
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CreateTreeNodeDto } from './dto/create-tree-node.dto';
@@ -10,12 +12,26 @@ export interface TreeNodeView {
   children: TreeNodeView[];
 }
 
+// @injectable declaration makes the following class reusable by others
 @Injectable()
 export class TreeService {
+  // instead of const prisma = new PrismaClient() we do constructor(private readonly treeRepository: TreeRepository) {} tp prevent NestJS depedency injection:
   constructor(private readonly treeRepository: TreeRepository) {}
 
   async getTree(): Promise<TreeNodeView[]> {
+    // ###--STEP 1: Building the tree and its children --###
+    // get flat list of node from db, something like this:
+    // [
+    //   { id: 1, label: "Root", parentId: null },
+    //   { id: 2, label: "Child A", parentId: 1 },
+    //   { id: 3, label: "Child B", parentId: 1 },
+    // ] 
     const flatNodes = await this.treeRepository.findAll();
+    // using map for fast lookup O(1):
+    // 1 → { id: 1, label: "Root", children: [] }
+    // 2 → { id: 2, label: "Child A", children: [] }
+    // 3 → { id: 3, label: "Child B", children: [] }
+
     const nodeMap = new Map<number, TreeNodeView>();
 
     flatNodes.forEach((node) => {
@@ -26,6 +42,8 @@ export class TreeService {
         children: [],
       });
     });
+
+    // ###---STEP 2: connecting parent and children to builds the actual tree structure:
 
     const roots: TreeNodeView[] = [];
 

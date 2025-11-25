@@ -12,9 +12,9 @@ export declare class TreeService {
     getTree(): Promise<TreeNodeView[]>;
     createNode(dto: CreateTreeNodeDto): Promise<{
         label: string;
+        parentId: number | null;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
-        id: number;
-        parentId: number | null;
     }>;
 }
